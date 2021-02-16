@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+	let items = (0..<10).map { $0 * 2 + 1 }
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+		List() {
+			ForEach(items, id: \.self) { item in
+				Text("Item \(item)")
+					.padding()
+			}
+		}
     }
 }
 
