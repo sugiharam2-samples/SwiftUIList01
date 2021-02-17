@@ -18,16 +18,15 @@ struct ContentView: View {
 				VStack {
 					Text("\(i == selected ? "> " : "")Item \(items[i])")
 						.frame(maxWidth: .infinity, alignment: .leading)
-					if (i == selected) {
-						Text("Detail 1\nDetail 2\nDetail 3")
-							.multilineTextAlignment(.trailing)
-							.frame(maxWidth: .infinity, alignment: .trailing)
-					}
+					Text(i == selected ? "Detail 1\nDetail 2\nDetail 3" : "--")
+						.multilineTextAlignment(.trailing)
+						.frame(maxWidth: .infinity, alignment: .trailing)
 				}
 				.contentShape(Rectangle())
 				.onTapGesture {
-					print("Tap: \(selected) => \(i)")
-					selected = i
+					withAnimation() {
+						selected = i
+					}
 				}
 			}
 		}
