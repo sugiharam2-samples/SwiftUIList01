@@ -8,51 +8,56 @@
 import SwiftUI
 
 struct ContentView: View {
-	@State var selected = 0
+	@State var selected = UUID()
 
-	let items = (0..<100).map { $0 * 2 + 10001 }
+	var items = (0..<100).map { ItemData(value: $0 * 2 + 10001) }
 
 	var body: some View {
-		List {
-			ForEach(0..<items.count) { i in
-				ItemView(index: i, value: items[i], parent: Binding.constant(self))
-					.onTapGesture {
-						withAnimation() {
-							selected = i
-						}
-					}
-			}
+		List(items) { item in
+			ItemView(item: Binding.constant(item), parent: Binding.constant(self))
 		}
-    }
+	}
+}
+
+struct ItemData: Identifiable {
+	var value = 0
+	let id = UUID()
+
+	var idString: String {
+		get { return String(id.uuidString.prefix(5)) }
+	}
 }
 
 struct ItemView: View {
-	var index = 0
-	var value = 0
+	@Binding var item: ItemData
 	@Binding var parent: ContentView
 
 	var body: some View {
 		VStack {
-			let showDetail = parent.selected == index
-			Text("\(showDetail ? "> " : "")Item \(index) => \(value)")
+			let showDetail = parent.selected == item.id
+			Text("\(showDetail ? "> " : "")Item \(item.idString) => \(item.value)")
 				.frame(maxWidth: .infinity, alignment: .leading)
 			Text(showDetail ? "Detail 1\nDetail 2\nDetail 3" : "--")
 				.multilineTextAlignment(.trailing)
 				.frame(maxWidth: .infinity, alignment: .trailing)
 		}
 		.contentShape(Rectangle())
+		.onTapGesture {
+			withAnimation() {
+				parent.selected = item.id
+			}
+		}
 	}
 
-	init(index: Int, value: Int, parent: Binding<ContentView>) {
-		self.index = index
-		self.value = value
-		self._parent = parent
-		print("init: \(index)")
+	init(item: Binding<ItemData>, parent: Binding<ContentView>) {
+		_item = item
+		_parent = parent
+		print("init: \(item.wrappedValue.idString)")
 	}
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+	static var previews: some View {
+		ContentView()
+	}
 }
