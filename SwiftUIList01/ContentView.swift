@@ -8,35 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
-	@State var selected = UUID()
+	@State var selected: UUID?
 	@State var scrollTop = false
 
 	var items = (0..<100).map { ItemData(value: $0 * 2 + 10001) }
 
 	var body: some View {
 		ScrollViewReader { proxy in
-			ZStack {
+			NavigationView {
 				List(items) { item in
 					ItemView(item: Binding.constant(item), parent: Binding.constant(self))
 				}
-				VStack {
-					Spacer()
-					Spacer()
-					HStack {
-						Spacer()
-						Button(scrollTop ? "Top" : "Bottom") {
-							withAnimation {
-								proxy.scrollTo((scrollTop ? items.first : items.last)!.id, anchor: .top)
-								scrollTop = !scrollTop
-							}
+				.listStyle(PlainListStyle())
+				.navigationBarTitle(Text("List01"), displayMode: .automatic)
+				.navigationBarItems(trailing:
+					Button(scrollTop ? "Top" : "Bottom") {
+						withAnimation {
+							proxy.scrollTo((scrollTop ? items.first : items.last)!.id, anchor: .top)
+							scrollTop = !scrollTop
 						}
-						.padding()
-						.background(Color.white)
-						.cornerRadius(3.0)
-						.shadow(radius: 10)
 					}
-					Spacer()
-				}
+				)
 			}
 		}
 	}
@@ -67,7 +59,7 @@ struct ItemView: View {
 		.contentShape(Rectangle())
 		.onTapGesture {
 			withAnimation() {
-				parent.selected = item.id
+				parent.selected = parent.selected != item.id ? item.id : nil
 			}
 		}
 	}
