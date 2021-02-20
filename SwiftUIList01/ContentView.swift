@@ -9,12 +9,35 @@ import SwiftUI
 
 struct ContentView: View {
 	@State var selected = UUID()
+	@State var scrollTop = false
 
 	var items = (0..<100).map { ItemData(value: $0 * 2 + 10001) }
 
 	var body: some View {
-		List(items) { item in
-			ItemView(item: Binding.constant(item), parent: Binding.constant(self))
+		ScrollViewReader { proxy in
+			ZStack {
+				List(items) { item in
+					ItemView(item: Binding.constant(item), parent: Binding.constant(self))
+				}
+				VStack {
+					Spacer()
+					Spacer()
+					HStack {
+						Spacer()
+						Button(scrollTop ? "Top" : "Bottom") {
+							withAnimation {
+								proxy.scrollTo((scrollTop ? items.first : items.last)!.id, anchor: .top)
+								scrollTop = !scrollTop
+							}
+						}
+						.padding()
+						.background(Color.white)
+						.cornerRadius(3.0)
+						.shadow(radius: 10)
+					}
+					Spacer()
+				}
+			}
 		}
 	}
 }
