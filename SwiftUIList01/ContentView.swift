@@ -46,21 +46,33 @@ struct ItemData: Identifiable {
 struct ItemView: View {
 	@Binding var item: ItemData
 	@Binding var parent: ContentView
+	@State var openCell = false
 
 	var body: some View {
-		VStack {
-			let showDetail = parent.selected == item.id
-			Text("\(showDetail ? "> " : "")Item \(item.idString) => \(item.value)")
-				.frame(maxWidth: .infinity, alignment: .leading)
-			Text(showDetail ? "Detail 1\nDetail 2\nDetail 3" : "--")
-				.multilineTextAlignment(.trailing)
-				.frame(maxWidth: .infinity, alignment: .trailing)
+		ZStack {
+			Color.blue.opacity(0.3)
+			VStack {
+				Text("Item \(item.idString) => \(item.value)")
+					.frame(maxWidth: .infinity, alignment: .leading)
+				Text("--")
+					.multilineTextAlignment(.trailing)
+					.frame(maxWidth: .infinity, alignment: .trailing)
+				Spacer()
+			}
+			.opacity(openCell ? 0 : 1)
+			VStack {
+				Text((0..<(openCell ? 5 : 1)).map { "Detail \($0)" }.joined(separator: "\n"))
+					.multilineTextAlignment(.trailing)
+					.frame(maxWidth: .infinity, alignment: .trailing)
+			}
+			.opacity(openCell ? 1 : 0)
 		}
+		.fixedSize(horizontal: false, vertical: true)
+		.modifier(AnimatingCellHeight(height: openCell ? 120 : 60))
+		.animation(.linear)
 		.contentShape(Rectangle())
 		.onTapGesture {
-			withAnimation() {
-				parent.selected = parent.selected != item.id ? item.id : nil
-			}
+			openCell.toggle()
 		}
 	}
 
@@ -68,6 +80,19 @@ struct ItemView: View {
 		_item = item
 		_parent = parent
 		print("init: \(item.wrappedValue.idString)")
+	}
+}
+
+struct AnimatingCellHeight: AnimatableModifier {
+	var height: CGFloat = 0
+
+	var animatableData: CGFloat {
+		get { height }
+		set { height = newValue }
+	}
+
+	func body(content: Content) -> some View {
+		content.frame(height: height)
 	}
 }
 
